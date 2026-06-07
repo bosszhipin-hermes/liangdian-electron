@@ -1,0 +1,43 @@
+name: build
+
+# 手动触发，或推送 v* 标签时自动打包
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  windows:
+    name: Windows 安装包 (NSIS)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: liangdian-windows-setup
+          path: release/*.exe
+          if-no-files-found: error
+
+  macos:
+    name: macOS 安装包 (dmg/zip)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build:mac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: liangdian-macos
+          path: |
+            release/*.dmg
+            release/*.zip
+          if-no-files-found: error

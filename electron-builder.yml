@@ -45,10 +45,24 @@ win:
   executableName: liangdian-electron
 
 nsis:
-  oneClick: false # 显示安装向导（为第五步自定义安装界面留接口）
+  oneClick: false # 助手式安装向导（多页）
   perMachine: false
-  allowToChangeInstallationDirectory: true
+  allowToChangeInstallationDirectory: true # 允许用户选择安装目录
   allowElevation: true
+  runAfterFinish: true # 完成页提供「立即运行」
+  menuCategory: true # 开始菜单分组
+  # —— 多语言安装界面 ——
+  multiLanguageInstaller: true
+  displayLanguageSelector: true
+  installerLanguages:
+    - zh_CN
+    - en_US
+  # —— 自定义界面：许可页 + 品牌位图 + 自定义脚本 ——
+  license: build/license.txt
+  include: build/installer.nsh
+  installerSidebar: build/installerSidebar.bmp
+  uninstallerSidebar: build/uninstallerSidebar.bmp
+  installerHeader: build/installerHeader.bmp
   artifactName: ${productName}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName} ${version}
