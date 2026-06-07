@@ -38,8 +38,8 @@ npm run build:mac  # 打包 macOS
 ## 路线图
 
 - [x] 第一步：工程骨架（electron-vite + Vue3 + TS）
-- [ ] 第二步：进程架构与 IPC 通信规范
-- [ ] 第三步：系统能力封装（窗口/托盘/文件/通知）
+- [x] 第二步：类型安全 IPC 通信架构（契约 + 泛型封装 + 自绘标题栏）
+- [x] 第三步：系统能力封装（通知/对话框/剪贴板/自启/主题/Shell）
 - [ ] 第四步：electron-builder 打包配置（Win/Mac）
 - [ ] 第五步：自定义安装界面（NSIS）
 - [ ] 第六步：全量 + 增量更新系统（electron-updater）
