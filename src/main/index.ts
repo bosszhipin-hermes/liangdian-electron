@@ -1,6 +1,7 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { registerIpcHandlers, sendToWindow } from './ipc'
 
 function createWindow(): void {
   // 创建主窗口
@@ -8,6 +9,7 @@ function createWindow(): void {
     width: 1024,
     height: 720,
     show: false,
+    frame: false, // 无边框：由渲染层自绘标题栏，窗口控制走 IPC（跨平台一致）
     autoHideMenuBar: true,
     title: 'Liangdian',
     webPreferences: {
@@ -21,6 +23,10 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
+
+  // 最大化状态变化 → 推送给渲染层，保持自绘标题栏按钮状态同步
+  mainWindow.on('maximize', () => sendToWindow(mainWindow, 'window:maximize-changed', true))
+  mainWindow.on('unmaximize', () => sendToWindow(mainWindow, 'window:maximize-changed', false))
 
   // 外部链接用系统浏览器打开，而不是在应用内开窗
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -44,8 +50,8 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // 示例 IPC：渲染层 -> 主进程
-  ipcMain.on('ping', () => console.log('pong'))
+  // 注册所有 IPC handler（统一入口）
+  registerIpcHandlers()
 
   createWindow()
 

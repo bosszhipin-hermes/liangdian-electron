@@ -1,8 +1,27 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import type { ExposedApi, IpcEventChannel, IpcEventMap } from '../shared/ipc'
 
-// 自定义对外暴露给渲染层的 API（后续在这里挂载系统能力）
-const api = {}
+// 对外暴露给渲染层的 API：每个方法都走 invoke，类型全部来自 IPC 契约。
+// 显式标注为 ExposedApi —— 实现与契约不符时编译期即报错。
+const api: ExposedApi = {
+  app: {
+    getInfo: () => ipcRenderer.invoke('app:getInfo')
+  },
+  window: {
+    minimize: () => ipcRenderer.invoke('window:minimize'),
+    toggleMaximize: () => ipcRenderer.invoke('window:toggleMaximize'),
+    close: () => ipcRenderer.invoke('window:close')
+  },
+  on: <C extends IpcEventChannel>(channel: C, listener: (payload: IpcEventMap[C]) => void) => {
+    const wrapped = (_: Electron.IpcRendererEvent, payload: IpcEventMap[C]): void => listener(payload)
+    ipcRenderer.on(channel, wrapped)
+    // 返回取消订阅函数，供渲染层在组件卸载时清理
+    return () => {
+      ipcRenderer.removeListener(channel, wrapped)
+    }
+  }
+}
 
 // 通过 contextBridge 安全暴露，避免在渲染层直接拿到 Node/Electron 能力
 if (process.contextIsolated) {
