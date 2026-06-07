@@ -12,7 +12,7 @@ function ping(): void {
 
 <template>
   <div class="page">
-    <h1 class="logo">Hermes</h1>
+    <h1 class="logo">Liangdian</h1>
     <p class="subtitle">Electron + Vue3 跨平台桌面应用骨架</p>
 
     <div class="cards">

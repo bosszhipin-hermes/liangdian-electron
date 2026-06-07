@@ -9,7 +9,7 @@ function createWindow(): void {
     height: 720,
     show: false,
     autoHideMenuBar: true,
-    title: 'Hermes',
+    title: 'Liangdian',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       // 安全基线：开启上下文隔离，关闭 nodeIntegration
@@ -38,7 +38,7 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   // Windows 任务栏应用标识
-  electronApp.setAppUserModelId('com.hermes.app')
+  electronApp.setAppUserModelId('com.liangdian.electron')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

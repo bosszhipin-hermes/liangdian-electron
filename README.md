@@ -1,4 +1,6 @@
-# Hermes
+# liangdian-electron
+
+针对 **「两点 · 前端开发工程师（Electron）」** 岗位定制的能力演示项目。
 
 Electron + Vue3 + TypeScript 跨平台桌面应用工程。
 
@@ -13,7 +15,7 @@ Electron + Vue3 + TypeScript 跨平台桌面应用工程。
 ## 目录结构
 
 ```
-hermes/
+liangdian-electron/
 ├── src/
 │   ├── main/        # 主进程
 │   ├── preload/     # 预加载脚本（contextBridge 安全桥接）
