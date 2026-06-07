@@ -19,15 +19,73 @@ export interface AppInfo {
   }
 }
 
+/** 操作系统信息（对接系统 API 演示） */
+export interface OsInfo {
+  type: string // os.type()，如 Darwin / Windows_NT
+  release: string // 内核版本
+  arch: string
+  hostname: string
+  cpu: string // 首颗 CPU 型号
+  cpuCount: number
+  totalMem: number // 字节
+  freeMem: number // 字节
+  uptime: number // 秒
+}
+
+/** 系统主题来源与状态 */
+export type ThemeSource = 'system' | 'light' | 'dark'
+export interface ThemeState {
+  source: ThemeSource
+  shouldUseDarkColors: boolean
+}
+
+/** 打开文本文件结果 */
+export interface OpenFileResult {
+  canceled: boolean
+  path?: string
+  content?: string
+}
+
+/** 保存文本结果 */
+export interface SaveTextResult {
+  canceled: boolean
+  path?: string
+}
+
 /**
  * 渲染层 → 主进程：请求 / 响应（ipcRenderer.invoke ↔ ipcMain.handle）
  * 每个通道声明入参 `args` 与返回 `return`。
  */
 export interface IpcInvokeMap {
+  // —— 应用 / 自启 ——
   'app:getInfo': { args: []; return: AppInfo }
+  'app:getAutoLaunch': { args: []; return: boolean }
+  'app:setAutoLaunch': { args: [enabled: boolean]; return: boolean } // 返回设置后的状态
+
+  // —— 窗口控制 ——
   'window:minimize': { args: []; return: void }
   'window:toggleMaximize': { args: []; return: boolean } // 返回切换后是否处于最大化
   'window:close': { args: []; return: void }
+
+  // —— 系统能力 ——
+  'system:notify': { args: [payload: { title: string; body: string }]; return: void }
+  'system:getOsInfo': { args: []; return: OsInfo }
+
+  // —— 文件对话框 ——
+  'dialog:openTextFile': { args: []; return: OpenFileResult }
+  'dialog:saveText': { args: [content: string]; return: SaveTextResult }
+
+  // —— 剪贴板 ——
+  'clipboard:writeText': { args: [text: string]; return: void }
+  'clipboard:readText': { args: []; return: string }
+
+  // —— Shell ——
+  'shell:showItemInFolder': { args: [path: string]; return: void }
+  'shell:openExternal': { args: [url: string]; return: void }
+
+  // —— 系统主题 ——
+  'theme:get': { args: []; return: ThemeState }
+  'theme:set': { args: [source: ThemeSource]; return: ThemeState }
 }
 
 /**
@@ -36,6 +94,7 @@ export interface IpcInvokeMap {
  */
 export interface IpcEventMap {
   'window:maximize-changed': boolean // 窗口最大化状态变化
+  'theme:changed': ThemeState // 系统主题变化
 }
 
 export type IpcInvokeChannel = keyof IpcInvokeMap
@@ -48,11 +107,33 @@ export type IpcEventChannel = keyof IpcEventMap
 export interface ExposedApi {
   app: {
     getInfo(): Promise<AppInfo>
+    getAutoLaunch(): Promise<boolean>
+    setAutoLaunch(enabled: boolean): Promise<boolean>
   }
   window: {
     minimize(): Promise<void>
     toggleMaximize(): Promise<boolean>
     close(): Promise<void>
+  }
+  system: {
+    notify(payload: { title: string; body: string }): Promise<void>
+    getOsInfo(): Promise<OsInfo>
+  }
+  dialog: {
+    openTextFile(): Promise<OpenFileResult>
+    saveText(content: string): Promise<SaveTextResult>
+  }
+  clipboard: {
+    writeText(text: string): Promise<void>
+    readText(): Promise<string>
+  }
+  shell: {
+    showItemInFolder(path: string): Promise<void>
+    openExternal(url: string): Promise<void>
+  }
+  theme: {
+    get(): Promise<ThemeState>
+    set(source: ThemeSource): Promise<ThemeState>
   }
   /** 订阅主进程推送的事件，返回取消订阅函数 */
   on<C extends IpcEventChannel>(channel: C, listener: (payload: IpcEventMap[C]) => void): () => void

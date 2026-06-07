@@ -2,6 +2,11 @@ import { ipcMain, type BrowserWindow } from 'electron'
 import type { IpcInvokeChannel, IpcInvokeMap, IpcEventChannel, IpcEventMap } from '../../shared/ipc'
 import { registerAppHandlers } from './app'
 import { registerWindowHandlers } from './window'
+import { registerSystemHandlers } from './system'
+import { registerDialogHandlers } from './dialog'
+import { registerClipboardHandlers } from './clipboard'
+import { registerShellHandlers } from './shell'
+import { registerThemeHandlers } from './theme'
 
 /**
  * 类型安全的 `ipcMain.handle` 封装。
@@ -33,4 +38,9 @@ export function sendToWindow<C extends IpcEventChannel>(
 export function registerIpcHandlers(): void {
   registerAppHandlers()
   registerWindowHandlers()
+  registerSystemHandlers()
+  registerDialogHandlers()
+  registerClipboardHandlers()
+  registerShellHandlers()
+  registerThemeHandlers()
 }

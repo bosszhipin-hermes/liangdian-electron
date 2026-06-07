@@ -6,12 +6,34 @@ import type { ExposedApi, IpcEventChannel, IpcEventMap } from '../shared/ipc'
 // 显式标注为 ExposedApi —— 实现与契约不符时编译期即报错。
 const api: ExposedApi = {
   app: {
-    getInfo: () => ipcRenderer.invoke('app:getInfo')
+    getInfo: () => ipcRenderer.invoke('app:getInfo'),
+    getAutoLaunch: () => ipcRenderer.invoke('app:getAutoLaunch'),
+    setAutoLaunch: (enabled) => ipcRenderer.invoke('app:setAutoLaunch', enabled)
   },
   window: {
     minimize: () => ipcRenderer.invoke('window:minimize'),
     toggleMaximize: () => ipcRenderer.invoke('window:toggleMaximize'),
     close: () => ipcRenderer.invoke('window:close')
+  },
+  system: {
+    notify: (payload) => ipcRenderer.invoke('system:notify', payload),
+    getOsInfo: () => ipcRenderer.invoke('system:getOsInfo')
+  },
+  dialog: {
+    openTextFile: () => ipcRenderer.invoke('dialog:openTextFile'),
+    saveText: (content) => ipcRenderer.invoke('dialog:saveText', content)
+  },
+  clipboard: {
+    writeText: (text) => ipcRenderer.invoke('clipboard:writeText', text),
+    readText: () => ipcRenderer.invoke('clipboard:readText')
+  },
+  shell: {
+    showItemInFolder: (path) => ipcRenderer.invoke('shell:showItemInFolder', path),
+    openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url)
+  },
+  theme: {
+    get: () => ipcRenderer.invoke('theme:get'),
+    set: (source) => ipcRenderer.invoke('theme:set', source)
   },
   on: <C extends IpcEventChannel>(channel: C, listener: (payload: IpcEventMap[C]) => void) => {
     const wrapped = (_: Electron.IpcRendererEvent, payload: IpcEventMap[C]): void => listener(payload)
