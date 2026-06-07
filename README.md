@@ -1,0 +1,43 @@
+# Hermes
+
+Electron + Vue3 + TypeScript 跨平台桌面应用工程。
+
+## 技术栈
+
+- **Electron** — 桌面应用运行时（Windows / macOS）
+- **Vue 3 + Vite** — 渲染层（基于 electron-vite）
+- **TypeScript** — 全链路类型
+- **electron-builder** — 打包 / 自定义安装界面（NSIS）
+- **electron-updater** — 全量更新 + 差分增量更新
+
+## 目录结构
+
+```
+hermes/
+├── src/
+│   ├── main/        # 主进程
+│   ├── preload/     # 预加载脚本（contextBridge 安全桥接）
+│   └── renderer/    # Vue3 渲染层
+├── electron.vite.config.ts
+├── package.json
+└── tsconfig*.json
+```
+
+## 常用命令
+
+```bash
+npm install        # 安装依赖
+npm run dev        # 开发模式
+npm run build      # 构建
+npm run build:win  # 打包 Windows
+npm run build:mac  # 打包 macOS
+```
+
+## 路线图
+
+- [x] 第一步：工程骨架（electron-vite + Vue3 + TS）
+- [ ] 第二步：进程架构与 IPC 通信规范
+- [ ] 第三步：系统能力封装（窗口/托盘/文件/通知）
+- [ ] 第四步：electron-builder 打包配置（Win/Mac）
+- [ ] 第五步：自定义安装界面（NSIS）
+- [ ] 第六步：全量 + 增量更新系统（electron-updater）
