@@ -42,4 +42,4 @@ npm run build:mac  # 打包 macOS
 - [x] 第三步：系统能力封装（通知/对话框/剪贴板/自启/主题/Shell）
 - [x] 第四步：electron-builder 打包配置（Win/Mac，图标自动生成，mac 已本地验证）
 - [x] 第五步：自定义安装界面（NSIS：许可页/品牌图/多语言/安装钩子，CI 构建 .exe）
-- [ ] 第六步：全量 + 增量更新系统（electron-updater）
+- [x] 第六步：全量 + 增量更新系统（electron-updater：blockmap 差分 + 进度 UI，mac 已本地验证）

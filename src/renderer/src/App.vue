@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import type { AppInfo, OsInfo, ThemeState, ThemeSource } from '@shared/ipc'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import type { AppInfo, OsInfo, ThemeState, ThemeSource, UpdateStatus } from '@shared/ipc'
 
 const REPO_URL = 'https://github.com/bosszhipin-hermes/liangdian-electron'
 
@@ -11,6 +11,11 @@ const autoLaunch = ref(false)
 const isMaximized = ref(false)
 const lastFilePath = ref('')
 const logs = ref<string[]>([])
+const update = ref<UpdateStatus | null>(null)
+const isDownloading = computed(() => update.value?.state === 'downloading')
+const downloadPercent = computed(() =>
+  update.value?.state === 'downloading' ? update.value.percent : 0
+)
 
 const offs: Array<() => void> = []
 
@@ -33,6 +38,10 @@ onMounted(async () => {
     window.api.on('theme:changed', (state) => {
       theme.value = state
       log(`系统主题推送：${state.shouldUseDarkColors ? '深色' : '浅色'}`)
+    }),
+    window.api.on('update:status', (s) => {
+      update.value = s
+      log(`更新：${updateLabel(s)}`)
     })
   )
 })
@@ -96,6 +105,27 @@ async function setTheme(source: ThemeSource): Promise<void> {
   theme.value = await window.api.theme.set(source)
   log(`主题切换为：${source}`)
 }
+
+// —— 应用更新 ——
+function updateLabel(s: UpdateStatus): string {
+  switch (s.state) {
+    case 'checking':
+      return '检查中…'
+    case 'available':
+      return `发现新版本 v${s.version}`
+    case 'not-available':
+      return `已是最新（v${s.version}）`
+    case 'downloading':
+      return `下载中 ${s.percent.toFixed(0)}%（${(s.bytesPerSecond / 1024).toFixed(0)} KB/s）`
+    case 'downloaded':
+      return `已下载 v${s.version}，可重启安装`
+    case 'error':
+      return `出错：${s.message}`
+  }
+}
+const checkUpdate = (): Promise<void> => window.api.update.check()
+const downloadUpdate = (): Promise<void> => window.api.update.download()
+const installUpdate = (): Promise<void> => window.api.update.install()
 </script>
 
 <template>
@@ -155,6 +185,24 @@ async function setTheme(source: ThemeSource): Promise<void> {
           >
             {{ s === 'system' ? '跟随系统' : s === 'light' ? '浅色' : '深色' }}
           </button>
+        </div>
+      </section>
+
+      <!-- 应用更新 -->
+      <section class="panel">
+        <h2 class="panel-title">应用更新（全量 + 增量 · 差分基于 blockmap 自动）</h2>
+        <div class="update-row">
+          <button class="btn" @click="checkUpdate">🔄 检查更新</button>
+          <button v-if="update?.state === 'available'" class="btn" @click="downloadUpdate">
+            ⬇️ 下载新版本
+          </button>
+          <button v-if="update?.state === 'downloaded'" class="btn on" @click="installUpdate">
+            ♻️ 重启并安装
+          </button>
+          <span class="update-state">{{ update ? updateLabel(update) : '点击「检查更新」开始' }}</span>
+        </div>
+        <div v-if="isDownloading" class="progress">
+          <div class="progress-bar" :style="{ width: downloadPercent + '%' }"></div>
         </div>
       </section>
 
@@ -337,6 +385,29 @@ async function setTheme(source: ThemeSource): Promise<void> {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+}
+
+.update-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.update-state {
+  font-size: 12px;
+  color: var(--muted);
+}
+.progress {
+  margin-top: 12px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s;
 }
 
 .logbox {

@@ -52,6 +52,21 @@ export interface SaveTextResult {
   path?: string
 }
 
+/** 应用更新状态（全量 + 差分增量；差分由 electron-updater 基于 blockmap 自动完成） */
+export type UpdateStatus =
+  | { state: 'checking' }
+  | { state: 'available'; version: string; releaseNotes?: string }
+  | { state: 'not-available'; version: string }
+  | {
+      state: 'downloading'
+      percent: number
+      transferred: number
+      total: number
+      bytesPerSecond: number
+    }
+  | { state: 'downloaded'; version: string }
+  | { state: 'error'; message: string }
+
 /**
  * 渲染层 → 主进程：请求 / 响应（ipcRenderer.invoke ↔ ipcMain.handle）
  * 每个通道声明入参 `args` 与返回 `return`。
@@ -86,6 +101,11 @@ export interface IpcInvokeMap {
   // —— 系统主题 ——
   'theme:get': { args: []; return: ThemeState }
   'theme:set': { args: [source: ThemeSource]; return: ThemeState }
+
+  // —— 应用更新 ——
+  'update:check': { args: []; return: void }
+  'update:download': { args: []; return: void }
+  'update:install': { args: []; return: void }
 }
 
 /**
@@ -95,6 +115,7 @@ export interface IpcInvokeMap {
 export interface IpcEventMap {
   'window:maximize-changed': boolean // 窗口最大化状态变化
   'theme:changed': ThemeState // 系统主题变化
+  'update:status': UpdateStatus // 更新流程状态
 }
 
 export type IpcInvokeChannel = keyof IpcInvokeMap
@@ -134,6 +155,11 @@ export interface ExposedApi {
   theme: {
     get(): Promise<ThemeState>
     set(source: ThemeSource): Promise<ThemeState>
+  }
+  update: {
+    check(): Promise<void>
+    download(): Promise<void>
+    install(): Promise<void>
   }
   /** 订阅主进程推送的事件，返回取消订阅函数 */
   on<C extends IpcEventChannel>(channel: C, listener: (payload: IpcEventMap[C]) => void): () => void

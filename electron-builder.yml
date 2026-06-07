@@ -76,5 +76,9 @@ linux:
   category: Utility
   icon: build/icon.png
 
-# 发布渠道占位（第六步全量/增量更新时填充 provider）
-publish: null
+# 发布渠道：GitHub Releases。打包时生成 latest.yml / latest-mac.yml 与 .blockmap，
+# electron-updater 据此做全量与差分（增量）更新。
+publish:
+  provider: github
+  owner: bosszhipin-hermes
+  repo: liangdian-electron

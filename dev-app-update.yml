@@ -1,0 +1,6 @@
+# 仅开发环境联调更新流程使用（autoUpdater.forceDevUpdateConfig）。
+# 打包时此文件被排除，正式包用 builder 自动生成的 app-update.yml。
+provider: github
+owner: bosszhipin-hermes
+repo: liangdian-electron
+updaterCacheDirName: liangdian-electron-updater

@@ -35,6 +35,11 @@ const api: ExposedApi = {
     get: () => ipcRenderer.invoke('theme:get'),
     set: (source) => ipcRenderer.invoke('theme:set', source)
   },
+  update: {
+    check: () => ipcRenderer.invoke('update:check'),
+    download: () => ipcRenderer.invoke('update:download'),
+    install: () => ipcRenderer.invoke('update:install')
+  },
   on: <C extends IpcEventChannel>(channel: C, listener: (payload: IpcEventMap[C]) => void) => {
     const wrapped = (_: Electron.IpcRendererEvent, payload: IpcEventMap[C]): void => listener(payload)
     ipcRenderer.on(channel, wrapped)

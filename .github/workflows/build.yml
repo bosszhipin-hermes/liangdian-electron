@@ -1,11 +1,14 @@
 name: build
 
-# 手动触发，或推送 v* 标签时自动打包
+# 手动触发，或推送 v* 标签时自动打包（标签触发时发布到 GitHub Releases）
 on:
   workflow_dispatch:
   push:
     tags:
       - 'v*'
+
+permissions:
+  contents: write # 允许打 tag 时创建 Release 并上传安装包/更新元数据
 
 jobs:
   windows:
@@ -17,11 +20,17 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - run: npm run build:win
+      # onTagOrDraft：tag 触发时发布到 Releases，手动触发仅构建
+      - run: npm run build:win -- --publish onTagOrDraft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         with:
           name: liangdian-windows-setup
-          path: release/*.exe
+          path: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml
           if-no-files-found: error
 
   macos:
@@ -33,11 +42,15 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - run: npm run build:mac
+      - run: npm run build:mac -- --publish onTagOrDraft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         with:
           name: liangdian-macos
           path: |
             release/*.dmg
             release/*.zip
+            release/*.blockmap
+            release/latest-mac.yml
           if-no-files-found: error

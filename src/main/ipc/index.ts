@@ -7,6 +7,7 @@ import { registerDialogHandlers } from './dialog'
 import { registerClipboardHandlers } from './clipboard'
 import { registerShellHandlers } from './shell'
 import { registerThemeHandlers } from './theme'
+import { registerUpdateHandlers } from './update'
 
 /**
  * 类型安全的 `ipcMain.handle` 封装。
@@ -43,4 +44,5 @@ export function registerIpcHandlers(): void {
   registerClipboardHandlers()
   registerShellHandlers()
   registerThemeHandlers()
+  registerUpdateHandlers()
 }
