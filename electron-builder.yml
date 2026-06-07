@@ -1,0 +1,66 @@
+appId: com.liangdian.electron
+productName: Liangdian
+copyright: Copyright © 2026 Liangdian
+
+directories:
+  output: release
+  buildResources: build
+
+# 只用「排除」写法：默认全收（含 out/ 与生产依赖 node_modules，devDeps 由 builder 自动剔除），
+# 仅排除源码与开发配置。切勿改成正向 include，否则会漏掉运行时外部依赖。
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.editorconfig,.prettierrc,.prettierignore,.eslintrc.cjs,.eslintignore}'
+  - '!{.env,.env.*,.npmrc}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!{README.md,electron-builder.yml,dev-app-update.yml}'
+  - '!scripts/*'
+  - '!.claude/*'
+
+asar: true
+
+# —— macOS ——
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.developer-tools
+  icon: build/icon.png
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  notarize: false
+  gatekeeperAssess: false
+  darkModeSupport: true
+
+dmg:
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+# —— Windows ——
+win:
+  target:
+    - nsis
+  icon: build/icon.png
+  executableName: liangdian-electron
+
+nsis:
+  oneClick: false # 显示安装向导（为第五步自定义安装界面留接口）
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  artifactName: ${productName}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName} ${version}
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+
+# —— Linux（备用）——
+linux:
+  target:
+    - AppImage
+  category: Utility
+  icon: build/icon.png
+
+# 发布渠道占位（第六步全量/增量更新时填充 provider）
+publish: null

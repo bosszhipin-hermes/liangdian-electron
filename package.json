@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "liangdian-electron — 针对「两点·前端开发工程师(Electron)」岗位定制的 Electron + Vue3 桌面应用演示",
   "main": "./out/main/index.js",
-  "author": "",
+  "author": {
+    "name": "yarnb",
+    "email": "yarnbcoder@gmail.com"
+  },
   "license": "MIT",
   "scripts": {
     "dev": "electron-vite dev",
